@@ -1,0 +1,11 @@
+# 미국 시세·재무 수집 대상 티커 (한 줄에 하나, # 주석 가능)
+AAPL
+MSFT
+GOOGL
+AMZN
+NVDA
+META
+TSLA
+BRK-B
+JPM
+SPY

@@ -1,0 +1,72 @@
+# Phase 0 게이트: GitHub Actions(해외 IP)에서 각 무료 출처 접근 가능 여부 검증.
+# 수동 실행(workflow_dispatch) 전용. 데이터 커밋 없음.
+name: smoke-test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Test pykrx (KRX, 해외 IP 차단 여부 확인)
+        run: |
+          python - <<'EOF'
+          from datetime import date, timedelta
+          from pykrx import stock
+          for i in range(10):
+              d = date.today() - timedelta(days=i)
+              df = stock.get_market_ohlcv(d.strftime("%Y%m%d"), market="KOSPI")
+              if not df.empty and (df["종가"] != 0).any():
+                  print(f"pykrx OHLCV OK: {d}, {len(df)} rows")
+                  flows = stock.get_market_net_purchases_of_equities(
+                      d.strftime("%Y%m%d"), d.strftime("%Y%m%d"), "KOSPI", "외국인")
+                  assert not flows.empty, "수급 데이터 비어 있음"
+                  print(f"pykrx 수급 OK: {len(flows)} rows")
+                  break
+          else:
+              raise SystemExit("pykrx 실패: 최근 10일 내 거래일 데이터 없음 (차단 의심)")
+          EOF
+      - name: Test FinanceDataReader (US 시세)
+        run: |
+          python - <<'EOF'
+          from datetime import date, timedelta
+          import FinanceDataReader as fdr
+          df = fdr.DataReader("AAPL", date.today() - timedelta(days=10))
+          assert not df.empty
+          print(f"FinanceDataReader OK: AAPL {len(df)} rows")
+          EOF
+      - name: Test SEC EDGAR (US 재무)
+        run: |
+          python - <<'EOF'
+          import requests
+          r = requests.get(
+              "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+              headers={"User-Agent": "FinancialData yhwsr92@gmail.com"}, timeout=30)
+          r.raise_for_status()
+          print(f"EDGAR OK: AAPL {len(r.json()['facts']['us-gaap'])} tags")
+          EOF
+      - name: Test ECOS/KOSIS 연결성 (키 불필요)
+        run: |
+          python - <<'EOF'
+          import requests
+          # ECOS는 'sample' 테스트 키 제공 — JSON 응답이면 접근 가능
+          r = requests.get("https://ecos.bok.or.kr/api/StatisticSearch/sample/json/kr/1/5/"
+                           "722Y001/M/202501/202512/0101000", timeout=30)
+          r.raise_for_status()
+          assert "StatisticSearch" in r.json() or "RESULT" in r.json()
+          print("ECOS OK: 엔드포인트 접근 가능")
+          # KOSIS는 잘못된 키라도 JSON err 응답이 오면 접근 가능
+          r = requests.get("https://kosis.kr/openapi/Param/statisticsParameterData.do",
+                           params={"method": "getList", "apiKey": "smoketest", "format": "json"},
+                           timeout=30)
+          r.raise_for_status()
+          print(f"KOSIS OK: 엔드포인트 접근 가능 ({r.text[:80]})")
+          EOF

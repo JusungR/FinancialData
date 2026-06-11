@@ -1,0 +1,13 @@
+{
+  "_comment": "ECOS/KOSIS 지표 정의. 코드는 ECOS 통계코드검색(ecos.bok.or.kr), KOSIS URL생성기(kosis.kr OpenAPI)에서 확인 후 수정/추가. 최초 실행 시 값 검증 필요.",
+  "ecos": [
+    {"id": "base_rate", "name": "한국은행 기준금리", "stat_code": "722Y001", "cycle": "M", "item_code1": "0101000"},
+    {"id": "usd_krw", "name": "원/달러 환율(월평균)", "stat_code": "731Y004", "cycle": "M", "item_code1": "0000001"},
+    {"id": "cpi", "name": "소비자물가지수(총지수)", "stat_code": "901Y009", "cycle": "M", "item_code1": "0"},
+    {"id": "m2", "name": "M2 광의통화(평잔)", "stat_code": "101Y004", "cycle": "M", "item_code1": "BBHA00"}
+  ],
+  "kosis": [
+    {"id": "unemployment_rate", "name": "실업률", "org_id": "101", "tbl_id": "DT_1DA7012S", "itm_id": "T80", "obj_l1": "00", "prd_se": "M"},
+    {"id": "industrial_production", "name": "전산업생산지수", "org_id": "101", "tbl_id": "DT_1JH20151", "itm_id": "T1", "obj_l1": "ALL", "prd_se": "M"}
+  ]
+}

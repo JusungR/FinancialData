@@ -1,0 +1,42 @@
+name: collect-fundamentals
+
+on:
+  schedule:
+    - cron: "0 3 * * 6"  # 매주 토요일
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-commit
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Collect DART (KR)
+        run: python src/collect_dart.py
+        env:
+          DART_API_KEY: ${{ secrets.DART_API_KEY }}
+      - name: Collect EDGAR (US)
+        if: always()  # DART 실패해도 EDGAR는 수집
+        run: python src/collect_edgar.py
+      - name: Commit data
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet && exit 0
+          git commit -m "data: fundamentals $(date -u +%F)"
+          git pull --rebase origin ${{ github.ref_name }}
+          git push origin HEAD:${{ github.ref_name }}

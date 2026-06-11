@@ -1,0 +1,7 @@
+pykrx
+finance-datareader
+yfinance
+opendartreader
+pandas
+pyarrow
+requests
