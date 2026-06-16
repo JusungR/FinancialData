@@ -2,7 +2,7 @@
 
 ## 한국 시세·수급 — pykrx
 
-- **출처**: KRX 정보데이터시스템(data.krx.co.kr) 스크래핑. 무료, 키 불필요
+- **출처**: KRX 정보데이터시스템(data.krx.co.kr). 무료 회원가입 필요 — 환경변수 `KRX_ID`, `KRX_PW`로 자격증명 전달 (pykrx 1.2+)
 - **호출 패턴**: 날짜별 일괄 조회 — `get_market_ohlcv(날짜, market)` 시장당 1회, 수급은 투자자 3종 × 시장 2 = 6회/일. 호출 간 1초 sleep
 - **저장**: `data/kr/prices/{YYYY-MM-DD}.parquet`, `data/kr/flows/{YYYY-MM-DD}.parquet` (일별 파일, 한 번 쓰면 불변)
 - **스키마 (prices)**: `date, ticker, market, open, high, low, close, volume, value, change_pct`

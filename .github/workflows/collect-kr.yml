@@ -28,6 +28,9 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python src/collect_kr.py --days ${{ inputs.days || '7' }}
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
       - name: Commit data
         if: always()
         run: |

@@ -17,6 +17,9 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: Test pykrx (KRX, 해외 IP 차단 여부 확인)
+        env:
+          KRX_ID: ${{ secrets.KRX_ID }}
+          KRX_PW: ${{ secrets.KRX_PW }}
         run: |
           python - <<'EOF'
           from datetime import date, timedelta
