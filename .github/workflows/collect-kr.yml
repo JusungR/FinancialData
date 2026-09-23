@@ -1,8 +1,9 @@
 name: collect-kr
 
 on:
-  schedule:
-    - cron: "0 9 * * 1-5"  # 18:00 KST 평일 (수급 데이터 확정 후, cron 지연 여유 포함)
+  # 일시 중단: KRX 계정 "패스워드 변경 필요"로 로그인 실패 (2026-09-16~). 비밀번호 변경·KRX_PW 시크릿 갱신 후 복구.
+  # schedule:
+  #   - cron: "0 9 * * 1-5"  # 18:00 KST 평일 (수급 데이터 확정 후, cron 지연 여유 포함)
   workflow_dispatch:
     inputs:
       days:
